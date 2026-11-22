@@ -2,7 +2,7 @@
 include('db_connect.php');
 $message = "";
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if (isset($_POST['saveStock']) && $_SERVER["REQUEST_METHOD"] == "POST") {
     $product_id = intval($_POST['product_id']);
     $supplier_id = intval($_POST['supplier_id']);
     $quantity = intval($_POST['stock_quantity']);
@@ -13,12 +13,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $conn->begin_transaction();
         try {
             // 1. Mag-INSERT sa stock_in table
-            $sql1 = "INSERT INTO stock_in (Product_Id, Supplier_Id, stock_quantity, Date_Received) VALUES ($product_id, $supplier_id, $quantity, '$date')";
-            $conn->query($sql1);
+            $params = "?, ?, ?, ?";
+            $types = "iiis";
+            $sql1Args = [$product_id, $supplier_id, $quantity, $date];
+            $sql1 = "INSERT INTO stock_in (Product_Id, Supplier_Id, stock_quantity, Date_Received) VALUES ($params)";
+            $stmt = $conn->prepare($sql1);
+            $stmt->bind_param($types, ...$sql1Args);
+            $stmt->execute();
 
             // 2. Mag-UPDATE ng stock sa product_record - DITO YUNG DAGDAG!
-            $sql2 = "UPDATE product_record SET stock_quantity = stock_quantity + $quantity WHERE Product_Id = $product_id";
-            $conn->query($sql2);
+            $sql2Types = "ii";
+            $args = [$quantity, $product_id];
+            $sql2 = "UPDATE product_record SET stock_quantity = stock_quantity + ? WHERE Product_Id = ?";
+            $Stmt = $conn->prepare($sql2);
+            $Stmt->bind_param($sql2Types, ...$args);
+            $Stmt->execute();
 
             $conn->commit();
             $message = "<div style='color:green; font-weight:bold;'>Matagumpay! Nadagdagan na ang stock!</div>";
@@ -80,7 +89,7 @@ $suppliers_list = $conn->query("SELECT Supplier_Id FROM supplier_record");
             <label>Date Received:</label>
             <input type="date" name="date_received" required>
         </div>
-        <button type="submit">I-save ang Stock-In</button>
+        <button type="submit" name="saveStock">I-save ang Stock-In</button>
     </form>
 </div>
 </body>

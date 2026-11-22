@@ -2,20 +2,41 @@
 include 'db_connect.php';
 
 if(isset($_POST['save'])){
-  $name = $_POST['product_name'];
-  $price = $_POST['unit_price'];
-  $stock = $_POST['stock_quantity'];
-  $cat = $_POST['category_id'];
-  $sup = $_POST['supplier_id'];
+    $name = $_POST['product_name'];
+    $price = $_POST['unit_price'];
+    $stock = $_POST['stock_quantity'];
+    $cat = $_POST['category_id'];
+    $sup = $_POST['supplier_id'];
 
-  // Ito yung maglilipat ng picture sa uploads folder
-  $image = $_FILES['product_image']['name'];
-  $tmp = $_FILES['product_image']['tmp_name'];
-  move_uploaded_file($tmp, "uploads/".$image);
+    // Ito yung maglilipat ng picture sa uploads folder
+    $image = $_FILES['product_image']['name'];
+    $tmp = $_FILES['product_image']['tmp_name'];
 
-  $conn->query("INSERT INTO product_record (Product_Name, Unit_Price, Stock_Quantity, Category_Id, Supplier_Id, Product_Image) VALUES ('$name','$price','$stock','$cat','$sup','$image')");
+    # Start the transaction
+    $conn->begin_transaction();
 
-  echo "<script>alert('Na-save na with picture!'); window.location='product.php';</script>";
+    $params = "?, ?, ?, ?, ?, ?";
+    $types =  "sdiiis";
+    $args = [$name,$price, $stock, $cat ,$sup, $image];
+
+    $saveProd = "INSERT INTO product_record (Product_Name, Unit_Price, Stock_Quantity, Category_Id, Supplier_Id, Product_Image) VALUES (?, ?, ?, ?, ?, ?)";
+    $stmt = $conn->prepare($saveProd);
+    
+    if($stmt){
+        $stmt->bind_param($types, ...$args);
+
+        if(move_uploaded_file($tmp, "uploads/".$image) && $stmt->execute()){
+            $conn->commit();
+            echo "<script>alert('Na-save na with picture!'); window.location='product.php';</script>";
+        }
+        else {
+            $conn->rollback(); 
+            echo "<script>alert('$stmt->error!'); </script>"; 
+        }
+    }
+    else { echo "<script>alert('$conn->error!'); </script>"; }
+
+    $stmt->close();
 }
 ?>
 

@@ -2,13 +2,33 @@
 
 <?php
 // PAG NAG-ADD NG SUPPLIER, METS!
-if(isset($_POST['add'])){
+if(isset($_POST['add']) && $_SERVER['REQUEST_METHOD'] === 'POST'){
 $supplier_name = $_POST['supplier_name'];
 $contact_number = $_POST['contact_number'];
 $email = $_POST['email'];
 $address = $_POST['address'];
 
-$conn->query("INSERT INTO supplier_record (Supplier_name, contact_number, email, address) VALUES ('$supplier_name', '$contact_number', '$email', '$address')");
+$conn->begin_transaction();
+
+$params = "?, ?, ?, ?";
+$types = "ssss";
+$args = [$supplier_name, $contact_number, $email, $address];
+
+$query = "INSERT INTO supplier_record (Supplier_name, contact_number, email, address) VALUES ($params);";
+$stmt = $conn->prepare($query);
+
+if($stmt){
+    $stmt->bind_param($types, ...$args); 
+    
+    if($stmt->execute()){
+        $conn->commit();
+    }
+    else {
+        $conn->rollback();
+    }
+}
+else {echo "<script>alert('$conn->error!'); </script>"; }
+
 }
 ?>
 
