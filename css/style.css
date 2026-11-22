@@ -1,0 +1,125 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body{
+    background-image: url('../background.jpg');
+    background-size: cover;
+    background-position: center;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.main-container{
+    width: 90%;
+    max-width: 1100px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 40px;
+}
+
+
+.left-side{
+    color: white;
+    flex: 1;
+    max-width: 550px;
+}
+.logo{
+    background: #ff5da2;
+    color: white;
+    font-size: 60px;
+    font-weight: 900;
+    width: 150px;
+    text-align: center;
+    border-radius: 25px;
+    padding: 10px 0;
+    margin-bottom: 20px;
+    letter-spacing: -2px;
+}
+.left-side h1{
+    font-size: 60px;
+    line-height: 1.05;
+    font-weight: 900;
+}
+.tagline{
+    color: #ffc0d9;
+    font-size: 26px;
+    margin-top: 15px;
+}
+.sub{
+    color: #ccc;
+    margin-top: 15px;
+    line-height: 1.6;
+}
+
+
+.loginBody{
+    width: 500px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255,255,255,0.4);
+    border-radius: 30px;
+    padding: 40px 35px;
+    color: white;
+}
+.loginBody h2{
+    text-align: center;
+    font-size: 28px;
+}
+.subtitle{
+    text-align: center;
+    font-size: 13px;
+    color: #eee;
+    margin: 10px 0 30px 0;
+}
+.loginBody label{
+    font-size: 13px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+.loginBody input[type="text"],
+.loginBody input[type="password"]{
+    width: 100%;
+    padding: 13px;
+    margin: 8px 0 20px 0;
+    border: none;
+    border-radius: 10px;
+    background: rgba(255, 220, 235, 0.9);
+    font-size: 14px;
+    outline: none;
+}
+
+.loginBody button{
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(to right, #ff6fae, #ff3d9a);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    cursor: pointer;
+}
+
+.error-msg{
+    background: rgba(255, 60, 60, 0.2);
+    border: 1px solid #ff4d4d;
+    color: #ffd1d1;
+    font-size: 13px;
+    text-align: center;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.input-error{
+    border: 2px solid #ff4d4d !important;
+    background: #ffe0e0 !important;
+}
