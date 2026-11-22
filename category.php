@@ -3,8 +3,29 @@
 <?php
 // PAG NAG-ADD NG CATEGORY, METS!
 if(isset($_POST['add'])){
-$category_name = $_POST['category_name'];
-$conn->query("INSERT INTO category_record (Category_Name) VALUES ('$category_name')");
+    $category_name = $_POST['category_name'];
+
+    $conn->begin_transaction();
+
+    $params = "?";
+    $types = "s";
+    $args = [$category_name];
+
+    $query = "INSERT INTO category_record (Category_Name) VALUES ($params)";
+    $stmt = $conn->prepare($query);
+
+    if($stmt){
+        $stmt->bind_param($types, ...$args);
+        if($stmt->execute()){
+            echo "<script>alert('Added Successfully!'); </script>"; 
+        }
+        else {
+            $conn->rollback(); 
+            echo "<script>alert('$stmt->error!'); </script>"; 
+        }
+    }
+    else { echo "<script>alert('$conn->error!'); </script>"; }
+    
 }
 ?>
 

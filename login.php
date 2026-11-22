@@ -2,20 +2,33 @@
 session_start();
 include 'db_connect.php';
 $error = "";
-if($_SERVER['REQUEST_METHOD'] == 'POST'){
+
+if(isset($_POST['login']) && $_SERVER['REQUEST_METHOD'] == 'POST'){
   $u = $_POST['username'];
   $p = $_POST['password'];
-  $q = $conn->query("SELECT * FROM user_record WHERE User_name='$u'");
-  if($q && $q->num_rows > 0){
-    $row = $q->fetch_assoc();
-    if($p == $row['User_password'] || password_verify($p, $row['User_password'])){
-      $_SESSION['username'] = $u;
-      header("Location: dashboard.php"); exit();
-    } else { $error = "Maling password!"; }
-  } else {
-    if($u == "doe13"){ $_SESSION['username'] = $u; header("Location: dashboard.php"); exit(); }
-    else { $error = "Hindi mahanap yung user!"; }
+  $q = "SELECT * FROM user_record WHERE User_name = ?;";
+  $stmt = $conn->prepare($q);
+  $stmt->bind_param('s', $u);
+  if($stmt && $stmt->execute()){
+    # get results
+    $get_res = $stmt->get_result();
+    // check the rows
+    if($get_res->num_rows > 0){
+      # loop the results
+      while($row = $get_res->fetch_assoc()){
+        $reg_uname = $row['User_name'];
+        $reg_pass = $row['User_password'];
+      }
+
+      if($u == $reg_uname){
+        if($p == $reg_pass || password_verify($p, $row['User_password'])){
+          $_SESSION['username'] = $reg_uname;
+          header("Location: dashboard.php"); exit();
+        } else { $error = "Wrong username or password!"; }
+      } else { $error = "Wrong username or password!"; } 
+    } else { $error = "Wrong username or password!"; }
   }
+  else { $error = "{$conn->error} and {$stmt->error}!"; }
 }
 ?>
 <!DOCTYPE html>
@@ -65,7 +78,7 @@ body { background:url('background.jpg') center/cover; min-height:100vh; display:
 <div class="input-wrap"><span class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E84393" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-6 8-6s8 2 8 6"/></svg></span><input type="text" name="username" placeholder="Enter your username" value="doe13" required></div>
 <label>PASSWORD</label>
 <div class="input-wrap"><span class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E84393" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><circle cx="12" cy="16" r="1" fill="#E84393"/></svg></span><input type="password" id="pass" name="password" placeholder="Enter your password" required></div>
-<button class="btn">LOGIN</button>
+<button class="btn" name="login">LOGIN</button>
 </form>
 </div>
 </body>
